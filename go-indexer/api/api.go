@@ -9,11 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// SetupRouter 配置 Gin 路由
+// SetupRouter configures Gin routes
 func SetupRouter(dbClient *db.DB) *gin.Engine {
 	r := gin.Default()
 
-	// 查询总锁仓价值 (TVL)
+	// Query Total Value Locked (TVL)
 	r.GET("/api/tvl", func(c *gin.Context) {
 		tvl, err := dbClient.GetTotalValueLocked()
 		if err != nil {
@@ -23,7 +23,7 @@ func SetupRouter(dbClient *db.DB) *gin.Engine {
 		}
 
 		c.JSON(http.StatusOK, gin.H{
-			"tvl": tvl.String(), // 返回字符串格式以避免大数精度问题
+			"tvl": tvl.String(), // Return as string to avoid big number precision issues
 		})
 	})
 

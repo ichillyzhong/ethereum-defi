@@ -5,7 +5,7 @@
 
   contract MyToken is ERC20 {
       constructor() ERC20("MyToken", "MTK") {
-          // 在构造函数中为部署者铸造一些代币
+          // Mint some tokens for the deployer in constructor
           _mint(msg.sender, 10000 * 10 ** 18);
       }
   }

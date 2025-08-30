@@ -10,7 +10,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// Event 是我们数据库表的 Go 结构体表示
+// Event represents our database table as a Go struct
 type Event struct {
 	User        string
 	Amount      *big.Int
@@ -20,12 +20,12 @@ type Event struct {
 	TxHash      string
 }
 
-// DB 结构体用于管理数据库连接
+// DB struct manages database connections
 type DB struct {
 	*sql.DB
 }
 
-// NewDB 创建并返回一个新的数据库连接实例
+// NewDB creates and returns a new database connection instance
 func NewDB(connStr string) (*DB, error) {
 	db, err := sql.Open("sqlite3", connStr)
 	if err != nil {
@@ -40,7 +40,7 @@ func NewDB(connStr string) (*DB, error) {
 	return &DB{db}, nil
 }
 
-// CreateTables 创建存储事件的表
+// CreateTables creates tables for storing events
 func (d *DB) CreateTables() error {
 	const createTableSQL = `
 	CREATE TABLE IF NOT EXISTS events (
@@ -61,7 +61,7 @@ func (d *DB) CreateTables() error {
 	return nil
 }
 
-// InsertEvent 将一个事件数据插入到数据库
+// InsertEvent inserts an event record into the database
 func (d *DB) InsertEvent(event *Event) error {
 	query := `
 	INSERT OR IGNORE INTO events (user_address, amount, event_type, block_number, tx_hash, timestamp)
@@ -74,7 +74,7 @@ func (d *DB) InsertEvent(event *Event) error {
 	return nil
 }
 
-// GetTotalValueLocked 查询总锁仓价值 (TVL)
+// GetTotalValueLocked queries the Total Value Locked (TVL)
 func (d *DB) GetTotalValueLocked() (*big.Int, error) {
 	// Get all deposit events
 	depositQuery := `SELECT amount FROM events WHERE event_type = 'deposit'`

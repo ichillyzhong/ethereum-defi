@@ -17,13 +17,13 @@ import (
 )
 
 func Run(ethereumClientURL, stakingContract string) {
-	// 连接到以太坊客户端
+	// Connect to Ethereum client
 	client, err := ethclient.Dial(ethereumClientURL)
 	if err != nil {
 		log.Fatalf("Failed to connect to the Ethereum client: %v", err)
 	}
 
-	// 连接到数据库
+	// Connect to database
 	dbConnStr := "./defi_data.db"
 	dbClient, err := db.NewDB(dbConnStr)
 	if err != nil {
@@ -32,14 +32,14 @@ func Run(ethereumClientURL, stakingContract string) {
 	defer dbClient.Close()
 	dbClient.CreateTables()
 
-	// 实例化合约
+	// Instantiate contract
 	contractAddress := common.HexToAddress(stakingContract)
 	contract, err := Staking.NewStaking(contractAddress, client)
 	if err != nil {
 		log.Fatalf("Failed to instantiate contract: %v", err)
 	}
 
-	// 创建事件过滤器
+	// Create event filter
 	query := ethereum.FilterQuery{
 		Addresses: []common.Address{contractAddress},
 	}
@@ -58,14 +58,14 @@ func Run(ethereumClientURL, stakingContract string) {
 		case vLog := <-logs:
 			fmt.Println("Received a new log!")
 
-			// 尝试解析 Deposit 事件
+			// Try to parse Deposit event
 			depositedEvent, err := contract.ParseDeposited(vLog)
 			if err == nil {
 				processEvent(dbClient, client, vLog, "deposit", depositedEvent.User, depositedEvent.Amount)
 				continue
 			}
 
-			// 尝试解析 Withdraw 事件
+			// Try to parse Withdraw event
 			withdrawnEvent, err := contract.ParseWithdrawn(vLog)
 			if err == nil {
 				processEvent(dbClient, client, vLog, "withdraw", withdrawnEvent.User, withdrawnEvent.Amount)
@@ -75,7 +75,7 @@ func Run(ethereumClientURL, stakingContract string) {
 	}
 }
 
-// processEvent 处理并存储事件到数据库
+// processEvent processes and stores events to database
 func processEvent(dbClient *db.DB, client *ethclient.Client, vLog types.Log, eventType string, user common.Address, amount *big.Int) {
 	header, err := client.HeaderByNumber(context.Background(), big.NewInt(int64(vLog.BlockNumber)))
 	if err != nil {
